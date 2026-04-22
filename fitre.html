@@ -580,6 +580,7 @@
     canvas {
       display: block;
       max-width: 100%;
+      height: auto;
     }
 
     /* ACTION ROW */
@@ -756,6 +757,48 @@
     canvas {
       border-radius: 8px;
     }
+    
+    /* Glassmorphism Overrides */
+    .panel, .canvas-wrap {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    .log-bar, .pipeline-display, .upload-zone, .cw-body {
+      border-radius: 8px;
+    }
+    .btn-run, .btn-ghost, .fi-header {
+      border-radius: 6px;
+    }
+    .panel-header, .cw-header {
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+    canvas {
+      border-radius: 8px;
+    }
+    
+    /* Glassmorphism Overrides */
+    .panel, .canvas-wrap {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    .log-bar, .pipeline-display, .upload-zone, .cw-body {
+      border-radius: 8px;
+    }
+    .btn-run, .btn-ghost, .fi-header {
+      border-radius: 6px;
+    }
+    .panel-header, .cw-header {
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+    canvas {
+      border-radius: 8px;
+    }
         @media (max-width: 900px) {
       .main-grid {
         grid-template-columns: 1fr;
@@ -856,6 +899,108 @@
           </div>
           <div class="panel-body" style="padding:10px">
             <div class="filter-scroll">
+
+              <div class="filter-item" id="fi-tophat">
+                <div class="fi-header" onclick="toggleFilter('tophat')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">MORFOLOJİK TOP-HAT</span>
+                  <span class="fi-badge badge-noise">DUMAN ÇİZGİSİ</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Geniş yansımaları/parlamaları yoksayarak yalnızca ince akış çizgilerini (aydınlık bölgeleri) ortaya çıkarır.</div>
+                  <div class="srow"><label>Yarıçap</label><input type="range" id="sl-tophat" min="1" max="15" step="1"
+                      value="6"><span id="vl-tophat">6</span></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-hlsuppress">
+                <div class="fi-header" onclick="toggleFilter('hlsuppress')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">YANSIMA BASKILAMA</span>
+                  <span class="fi-badge badge-warn">MASKELEME</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Aşırı parlak noktaları tespit eder (ışık yansıması) ve bu noktaları belirli bir eşiğe göre karartır.</div>
+                  <div class="srow"><label>Eşik (Threshold)</label><input type="range" id="sl-hl-t" min="100" max="255" step="5"
+                      value="200"><span id="vl-hl-t">200</span></div>
+                  <div class="srow"><label>Baskılama Gücü</label><input type="range" id="sl-hl-a" min="0.1" max="1.0" step="0.1"
+                      value="0.8"><span id="vl-hl-a">0.8</span></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-gamma">
+                <div class="fi-header" onclick="toggleFilter('gamma')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">GAMA DÜZELTMESİ</span>
+                  <span class="fi-badge badge-flow">KONTRAST</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Karanlık detayları (dumanı) görünür kılarken yüksek parlamaları minimal seviyede artırır. Orta tonları güçlendirir.</div>
+                  <div class="srow"><label>Gama Değeri</label><input type="range" id="sl-gamma" min="0.2" max="3.0" step="0.1"
+                      value="1.4"><span id="vl-gamma">1.4</span></div>
+                </div>
+              </div>
+
+
+              <div class="filter-item" id="fi-tophat">
+                <div class="fi-header" onclick="toggleFilter('tophat')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">MORFOLOJİK TOP-HAT</span>
+                  <span class="fi-badge badge-noise">DUMAN ÇİZGİSİ</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Geniş yansımaları/parlamaları yoksayarak yalnızca ince akış çizgilerini (aydınlık bölgeleri) ortaya çıkarır.</div>
+                  <div class="srow"><label>Yarıçap</label><input type="range" id="sl-tophat" min="1" max="15" step="1"
+                      value="6"><span id="vl-tophat">6</span></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-hlsuppress">
+                <div class="fi-header" onclick="toggleFilter('hlsuppress')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">YANSIMA BASKILAMA</span>
+                  <span class="fi-badge badge-warn">MASKELEME</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Aşırı parlak noktaları tespit eder (ışık yansıması) ve bu noktaları belirli bir eşiğe göre karartır.</div>
+                  <div class="srow"><label>Eşik (Threshold)</label><input type="range" id="sl-hl-t" min="100" max="255" step="5"
+                      value="200"><span id="vl-hl-t">200</span></div>
+                  <div class="srow"><label>Baskılama Gücü</label><input type="range" id="sl-hl-a" min="0.1" max="1.0" step="0.1"
+                      value="0.8"><span id="vl-hl-a">0.8</span></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-gamma">
+                <div class="fi-header" onclick="toggleFilter('gamma')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">GAMA DÜZELTMESİ</span>
+                  <span class="fi-badge badge-flow">KONTRAST</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Karanlık detayları (dumanı) görünür kılarken yüksek parlamaları minimal seviyede artırır. Orta tonları güçlendirir.</div>
+                  <div class="srow"><label>Gama Değeri</label><input type="range" id="sl-gamma" min="0.2" max="3.0" step="0.1"
+                      value="1.4"><span id="vl-gamma">1.4</span></div>
+                </div>
+              </div>
+
 
               <div class="filter-item" id="fi-tophat">
                 <div class="fi-header" onclick="toggleFilter('tophat')">
@@ -1202,11 +1347,15 @@
   </div>
 
   <script>
-    const W = 480, H = 360;
+    const MAX_DIM = 960; // Slightly reduced for performance
+    let W = 480, H = 360;
     let mainData = null, bgData = null;
+    let isProcessing = false;
 
-    const ctxO = document.getElementById('c-orig').getContext('2d');
-    const ctxOut = document.getElementById('c-out').getContext('2d');
+    const canvasOrig = document.getElementById('c-orig');
+    const canvasOut = document.getElementById('c-out');
+    const ctxO = canvasOrig.getContext('2d');
+    const ctxOut = canvasOut.getContext('2d');
 
     function log(msg) { document.getElementById('log-text').textContent = msg; }
 
@@ -1217,27 +1366,32 @@
     }
 
     function loadImg(file, isBg) {
+      if (isBg && !mainData) { log('Lütfen arka plan yüklemeden önce ANA GÖRÜNTÜYÜ yükleyin!'); return; }
       const r = new FileReader();
       r.onload = ev => {
         const img = new Image();
         img.onload = () => {
-          const sc = Math.min(W / img.width, H / img.height);
-          const dw = Math.round(img.width * sc), dh = Math.round(img.height * sc);
-          const dx = Math.round((W - dw) / 2), dy = Math.round((H - dh) / 2);
+          if (!isBg) {
+            const sc = Math.min(1, MAX_DIM / Math.max(img.width, img.height));
+            W = Math.round(img.width * sc);
+            H = Math.round(img.height * sc);
+            canvasOrig.width = W; canvasOrig.height = H;
+            canvasOut.width = W; canvasOut.height = H;
+          }
           if (isBg) {
             const tmp = document.createElement('canvas'); tmp.width = W; tmp.height = H;
-            const tc = tmp.getContext('2d'); tc.clearRect(0, 0, W, H); tc.drawImage(img, dx, dy, dw, dh);
+            const tc = tmp.getContext('2d'); tc.clearRect(0, 0, W, H); tc.drawImage(img, 0, 0, W, H);
             bgData = tc.getImageData(0, 0, W, H);
             const el = document.getElementById('uz-bg'); el.classList.add('loaded');
             document.getElementById('uz-bg-lbl').textContent = 'ARKA PLAN ✓';
             log('Arka plan görüntüsü yüklendi. Arka plan çıkarma filtresi aktifleştirildi.');
           } else {
-            ctxO.clearRect(0, 0, W, H); ctxO.drawImage(img, dx, dy, dw, dh);
+            ctxO.clearRect(0, 0, W, H); ctxO.drawImage(img, 0, 0, W, H);
             mainData = ctxO.getImageData(0, 0, W, H);
             showCanvas('c-orig', true);
             const el = document.getElementById('uz-main'); el.classList.add('loaded');
             document.getElementById('uz-main-lbl').textContent = 'ANA GÖRÜNTÜ ✓';
-            document.getElementById('orig-info').textContent = img.width + '×' + img.height;
+            document.getElementById('orig-info').textContent = img.width + '×' + img.height + ' (' + W + 'x' + H + ' işleniyor)';
             log('Ana görüntü yüklendi (' + img.width + '×' + img.height + '). Filtre zincirini oluşturun ve uygulayın.');
           }
         }; img.src = ev.target.result;
@@ -1378,7 +1532,6 @@
       return t;
     }
 
-    
     function morphologyPass(src, dst, w, h, r, isErosion) {
       const tmp = new Uint8ClampedArray(src.length);
       for (let y = 0; y < h; y++) {
@@ -1430,114 +1583,165 @@
 
     function suppressHL(d, w, h, thr, amt) {
       for (let i = 0; i < d.length; i += 4) {
-        let v = d[i];
+        // use intensity of the pixel assuming grayscale or max of RGB
+        let v = Math.max(d[i], d[i+1], d[i+2]);
         if (v > thr) {
-          v = thr + (v - thr) * (1 - amt);
+          let newV = thr + (v - thr) * (1 - amt);
+          let ratio = newV / v;
+          d[i] = clamp(d[i] * ratio);
+          d[i+1] = clamp(d[i+1] * ratio);
+          d[i+2] = clamp(d[i+2] * ratio);
         }
-        d[i] = d[i + 1] = d[i + 2] = clamp(v);
       }
     }
 
-    function run() {
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+
+    async function run() {
       if (!mainData) { log('HATA: Önce ana görüntü yükleyin.'); return; }
-      const d = new Uint8ClampedArray(mainData.data);
-      const applied = [];
+      if (isProcessing) { log('Devam eden işlem var, lütfen bekleyin...'); return; }
+      
+      const btn = document.querySelector('.btn-run');
+      btn.style.opacity = '0.5';
+      btn.textContent = 'İŞLENİYOR...';
+      isProcessing = true;
+      
+      try {
+        const d = new Uint8ClampedArray(mainData.data);
+        const applied = [];
 
-      if (filterState.gray) {
-        applied.push('Gri ton');
-        for (let i = 0; i < d.length; i += 4) { const g = clamp(0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]); d[i] = d[i + 1] = d[i + 2] = g; }
-      }
-      if (filterState.bgsub) {
-        const amp = parseFloat(document.getElementById('sl-bgsub').value);
-        applied.push('BG çıkarma ×' + amp.toFixed(1));
-        if (bgData) {
-          for (let i = 0; i < d.length; i += 4) { const diff = Math.abs(d[i] - bgData.data[i]); const v = clamp(diff * amp); d[i] = d[i + 1] = d[i + 2] = v; }
-        } else {
-          const tmp = new Uint8ClampedArray(d); blurAll(tmp, W, H, 15);
-          for (let i = 0; i < d.length; i += 4) { const diff = Math.abs(d[i] - tmp[i]); const v = clamp(diff * amp); d[i] = d[i + 1] = d[i + 2] = v; }
-        }
-      }
-      if (filterState.tophat) {
-        const r = parseInt(document.getElementById('sl-tophat').value);
-        applied.push('Top-Hat r=' + r);
-        doTopHat(d, W, H, r);
-      }
-      if (filterState.hlsuppress) {
-        const thr = parseInt(document.getElementById('sl-hl-t').value);
-        const amt = parseFloat(document.getElementById('sl-hl-a').value);
-        applied.push('Yans.Bask. t=' + thr);
-        suppressHL(d, W, H, thr, amt);
-      }
-      if (filterState.gamma) {
-        const g = parseFloat(document.getElementById('sl-gamma').value);
-        applied.push('Gama = ' + g.toFixed(1));
-        doGamma(d, W, H, g);
-      }
-      if (filterState.median) {
-        const sz = parseInt(document.getElementById('sl-median').value);
-        applied.push('Median ' + sz + '×' + sz); medianFilter(d, W, H, sz);
-      }
-      if (filterState.bilateral) {
-        const sS = parseInt(document.getElementById('sl-bil-s').value), sR = parseInt(document.getElementById('sl-bil-r').value);
-        applied.push('Bilateral σs=' + sS); bilateralFilter(d, W, H, sS, sR);
-      }
-      if (filterState.gauss) {
-        const r = parseInt(document.getElementById('sl-gauss').value);
-        applied.push('Gauss r=' + r); blurAll(d, W, H, r);
-      }
-      if (filterState.clahe) {
-        const clip = parseFloat(document.getElementById('sl-clahe').value);
-        const grid = parseInt(document.getElementById('sl-clahe-grid').value);
-        applied.push('CLAHE ' + clip.toFixed(1) + '/' + grid + '×' + grid); doClahe(d, W, H, clip, grid);
-      }
-      if (filterState.heq) { applied.push('Hist.eq.'); histEq(d, W, H); }
-      if (filterState.unsharp) {
-        const amt = parseFloat(document.getElementById('sl-unsharp').value);
-        const r = parseInt(document.getElementById('sl-unsharp-r').value);
-        applied.push('Unsharp ×' + amt.toFixed(1));
-        const orig2 = new Uint8ClampedArray(d), blr = new Uint8ClampedArray(d); blurAll(blr, W, H, r);
-        for (let i = 0; i < d.length; i += 4) { d[i] = clamp(orig2[i] + amt * (orig2[i] - blr[i])); d[i + 1] = clamp(orig2[i + 1] + amt * (orig2[i + 1] - blr[i + 1])); d[i + 2] = clamp(orig2[i + 2] + amt * (orig2[i + 2] - blr[i + 2])); }
-      }
-      if (filterState.contrast) {
-        const c = parseFloat(document.getElementById('sl-con').value), b = parseInt(document.getElementById('sl-bri').value);
-        applied.push('Kontrast ×' + c.toFixed(2));
-        for (let i = 0; i < d.length; i += 4) { d[i] = clamp((d[i] - 128) * c + 128 + b); d[i + 1] = clamp((d[i + 1] - 128) * c + 128 + b); d[i + 2] = clamp((d[i + 2] - 128) * c + 128 + b); }
-      }
-      if (filterState.sobel) {
-        const thr = parseInt(document.getElementById('sl-sobel').value);
-        const mod = document.getElementById('sel-sobel').value;
-        applied.push('Sobel[' + mod + ']');
-        const gray = new Uint8Array(W * H); for (let i = 0; i < W * H; i++)gray[i] = d[i * 4];
-        const gx = new Float32Array(W * H), gy = new Float32Array(W * H);
-        for (let y = 1; y < H - 1; y++)for (let x = 1; x < W - 1; x++) {
-          gx[y * W + x] = -gray[(y - 1) * W + (x - 1)] - 2 * gray[y * W + (x - 1)] - gray[(y + 1) * W + (x - 1)] + gray[(y - 1) * W + (x + 1)] + 2 * gray[y * W + (x + 1)] + gray[(y + 1) * W + (x + 1)];
-          gy[y * W + x] = -gray[(y - 1) * W + (x - 1)] - 2 * gray[(y - 1) * W + x] - gray[(y - 1) * W + (x + 1)] + gray[(y + 1) * W + (x - 1)] + 2 * gray[(y + 1) * W + x] + gray[(y + 1) * W + (x + 1)];
-        }
-        for (let i = 0; i < W * H; i++) {
-          const mag = Math.sqrt(gx[i] * gx[i] + gy[i] * gy[i]);
-          let v;
-          if (mod === 'mag') v = clamp(mag);
-          else if (mod === 'bin') v = mag > thr ? 255 : 0;
-          else { const angle = (Math.atan2(gy[i], gx[i]) + Math.PI) / (2 * Math.PI) * 255; v = mag > thr ? clamp(angle) : 0; }
-          d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = v;
-        }
-      }
-      if (filterState.thresh) {
-        const mod = document.getElementById('sel-thresh').value;
-        let t = parseInt(document.getElementById('sl-thresh').value);
-        if (mod === 'adapt') t = otsuThresh(d, W, H);
-        applied.push('Eşik t=' + t + (mod === 'adapt' ? ' [Otsu]' : mod === 'inv' ? ' [ters]' : ''));
-        for (let i = 0; i < W * H; i++) { const p = i * 4; const v = mod === 'inv' ? (d[p] < t ? 255 : 0) : (d[p] > t ? 255 : 0); d[p] = d[p + 1] = d[p + 2] = v; }
-      }
-      if (filterState.invert) {
-        applied.push('Ters çevirme');
-        for (let i = 0; i < d.length; i += 4) { d[i] = 255 - d[i]; d[i + 1] = 255 - d[i + 1]; d[i + 2] = 255 - d[i + 2]; }
-      }
+        log('Uygulanıyor: Hazırlık...');
+        await delay(20);
 
-      ctxOut.putImageData(new ImageData(d, W, H), 0, 0);
-      showCanvas('c-out', true);
-      document.getElementById('out-info').textContent = applied.length + ' filtre';
-      log('Tamamlandı: ' + applied.join(' → '));
+        if (filterState.gray) {
+          applied.push('Gri ton');
+          for (let i = 0; i < d.length; i += 4) { const g = clamp(0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]); d[i] = d[i + 1] = d[i + 2] = g; }
+          await delay(10);
+        }
+        if (filterState.bgsub) {
+          const amp = parseFloat(document.getElementById('sl-bgsub').value);
+          applied.push('BG çıkarma ×' + amp.toFixed(1));
+          if (bgData) {
+            for (let i = 0; i < d.length; i += 4) { const diff = Math.abs(d[i] - bgData.data[i]); const v = clamp(diff * amp); d[i] = d[i + 1] = d[i + 2] = v; }
+          } else {
+            const tmp = new Uint8ClampedArray(d); blurAll(tmp, W, H, 15);
+            for (let i = 0; i < d.length; i += 4) { const diff = Math.abs(d[i] - tmp[i]); const v = clamp(diff * amp); d[i] = d[i + 1] = d[i + 2] = v; }
+          }
+          await delay(10);
+        }
+        if (filterState.tophat) {
+          const r = parseInt(document.getElementById('sl-tophat').value);
+          applied.push('Top-Hat r=' + r);
+          log('Uygulanıyor: Morfolojik Top-Hat...');
+          await delay(20);
+          doTopHat(d, W, H, r);
+        }
+        if (filterState.hlsuppress) {
+          const thr = parseInt(document.getElementById('sl-hl-t').value);
+          const amt = parseFloat(document.getElementById('sl-hl-a').value);
+          applied.push('Yans.Bask. t=' + thr);
+          log('Uygulanıyor: Yansıma Baskılama...');
+          suppressHL(d, W, H, thr, amt);
+          await delay(10);
+        }
+        if (filterState.gamma) {
+          const g = parseFloat(document.getElementById('sl-gamma').value);
+          applied.push('Gama = ' + g.toFixed(1));
+          log('Uygulanıyor: Gama Düzeltmesi...');
+          doGamma(d, W, H, g);
+          await delay(10);
+        }
+        if (filterState.median) {
+          const sz = parseInt(document.getElementById('sl-median').value);
+          applied.push('Median ' + sz + '×' + sz); 
+          log('Uygulanıyor: Median...');
+          await delay(20);
+          medianFilter(d, W, H, sz);
+        }
+        if (filterState.bilateral) {
+          const sS = parseInt(document.getElementById('sl-bil-s').value), sR = parseInt(document.getElementById('sl-bil-r').value);
+          applied.push('Bilateral σs=' + sS); 
+          log('Uygulanıyor: Bilateral...');
+          await delay(20);
+          bilateralFilter(d, W, H, sS, sR);
+        }
+        if (filterState.gauss) {
+          const r = parseInt(document.getElementById('sl-gauss').value);
+          applied.push('Gauss r=' + r); 
+          log('Uygulanıyor: Gauss Blur...');
+          await delay(20);
+          blurAll(d, W, H, r);
+        }
+        if (filterState.clahe) {
+          const clip = parseFloat(document.getElementById('sl-clahe').value);
+          const grid = parseInt(document.getElementById('sl-clahe-grid').value);
+          applied.push('CLAHE ' + clip.toFixed(1) + '/' + grid + '×' + grid); 
+          log('Uygulanıyor: CLAHE...');
+          await delay(20);
+          doClahe(d, W, H, clip, grid);
+        }
+        if (filterState.heq) { applied.push('Hist.eq.'); histEq(d, W, H); await delay(10); }
+        if (filterState.unsharp) {
+          const amt = parseFloat(document.getElementById('sl-unsharp').value);
+          const r = parseInt(document.getElementById('sl-unsharp-r').value);
+          applied.push('Unsharp ×' + amt.toFixed(1));
+          log('Uygulanıyor: Unsharp Mask...');
+          await delay(20);
+          const orig2 = new Uint8ClampedArray(d), blr = new Uint8ClampedArray(d); blurAll(blr, W, H, r);
+          for (let i = 0; i < d.length; i += 4) { d[i] = clamp(orig2[i] + amt * (orig2[i] - blr[i])); d[i + 1] = clamp(orig2[i + 1] + amt * (orig2[i + 1] - blr[i + 1])); d[i + 2] = clamp(orig2[i + 2] + amt * (orig2[i + 2] - blr[i + 2])); }
+        }
+        if (filterState.contrast) {
+          const c = parseFloat(document.getElementById('sl-con').value), b = parseInt(document.getElementById('sl-bri').value);
+          applied.push('Kontrast ×' + c.toFixed(2));
+          log('Uygulanıyor: Kontrast/Parlaklık...');
+          for (let i = 0; i < d.length; i += 4) { d[i] = clamp((d[i] - 128) * c + 128 + b); d[i + 1] = clamp((d[i + 1] - 128) * c + 128 + b); d[i + 2] = clamp((d[i + 2] - 128) * c + 128 + b); }
+          await delay(10);
+        }
+        if (filterState.sobel) {
+          const thr = parseInt(document.getElementById('sl-sobel').value);
+          const mod = document.getElementById('sel-sobel').value;
+          applied.push('Sobel[' + mod + ']');
+          log('Uygulanıyor: Sobel...');
+          await delay(20);
+          const gray = new Uint8Array(W * H); for (let i = 0; i < W * H; i++)gray[i] = d[i * 4];
+          const gx = new Float32Array(W * H), gy = new Float32Array(W * H);
+          for (let y = 1; y < H - 1; y++)for (let x = 1; x < W - 1; x++) {
+            gx[y * W + x] = -gray[(y - 1) * W + (x - 1)] - 2 * gray[y * W + (x - 1)] - gray[(y + 1) * W + (x - 1)] + gray[(y - 1) * W + (x + 1)] + 2 * gray[y * W + (x + 1)] + gray[(y + 1) * W + (x + 1)];
+            gy[y * W + x] = -gray[(y - 1) * W + (x - 1)] - 2 * gray[(y - 1) * W + x] - gray[(y - 1) * W + (x + 1)] + gray[(y + 1) * W + (x - 1)] + 2 * gray[(y + 1) * W + x] + gray[(y + 1) * W + (x + 1)];
+          }
+          for (let i = 0; i < W * H; i++) {
+            const mag = Math.sqrt(gx[i] * gx[i] + gy[i] * gy[i]);
+            let v;
+            if (mod === 'mag') v = clamp(mag);
+            else if (mod === 'bin') v = mag > thr ? 255 : 0;
+            else { const angle = (Math.atan2(gy[i], gx[i]) + Math.PI) / (2 * Math.PI) * 255; v = mag > thr ? clamp(angle) : 0; }
+            d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = v;
+          }
+        }
+        if (filterState.thresh) {
+          const mod = document.getElementById('sel-thresh').value;
+          let t = parseInt(document.getElementById('sl-thresh').value);
+          if (mod === 'adapt') t = otsuThresh(d, W, H);
+          applied.push('Eşik t=' + t + (mod === 'adapt' ? ' [Otsu]' : mod === 'inv' ? ' [ters]' : ''));
+          for (let i = 0; i < W * H; i++) { const p = i * 4; const v = mod === 'inv' ? (d[p] < t ? 255 : 0) : (d[p] > t ? 255 : 0); d[p] = d[p + 1] = d[p + 2] = v; }
+          await delay(10);
+        }
+        if (filterState.invert) {
+          applied.push('Ters çevirme');
+          for (let i = 0; i < d.length; i += 4) { d[i] = 255 - d[i]; d[i + 1] = 255 - d[i + 1]; d[i + 2] = 255 - d[i + 2]; }
+        }
+
+        ctxOut.putImageData(new ImageData(d, W, H), 0, 0);
+        showCanvas('c-out', true);
+        document.getElementById('out-info').textContent = applied.length + ' filtre';
+        log('Tamamlandı: ' + applied.join(' → '));
+      } catch (err) {
+        log('Bir hata oluştu: ' + err.message);
+      } finally {
+        isProcessing = false;
+        btn.style.opacity = '1';
+        btn.textContent = '▶ FİLTRELERİ UYGULA';
+      }
     }
 
     function dl() {
@@ -1554,19 +1758,19 @@
           vals: { 'sl-tophat': 8, 'sl-hl-t': 220, 'sl-hl-a': 0.8, 'sl-gamma': 1.6, 'sl-bil-s': 4, 'sl-bil-r': 30, 'sl-clahe': 2.0, 'sl-unsharp': 1.5, 'sl-unsharp-r': 2, 'sl-con': 1.1, 'sl-bri': 0 }
         },
         smoke: {
-          gray: true, bgsub: false, median: true, bilateral: false, gauss: true, clahe: true, heq: false, unsharp: true, contrast: true, sobel: false, thresh: false, invert: false,
+          gray: true, bgsub: false, tophat: false, hlsuppress: false, gamma: false, median: true, bilateral: false, gauss: true, clahe: true, heq: false, unsharp: true, contrast: true, sobel: false, thresh: false, invert: false,
           vals: { 'sl-median': 3, 'sl-gauss': 2, 'sl-clahe': 3, 'sl-unsharp': 2, 'sl-unsharp-r': 2, 'sl-con': 2, 'sl-bri': 10 }
         },
         edge: {
-          gray: true, bgsub: false, median: false, bilateral: false, gauss: true, clahe: false, heq: false, unsharp: false, contrast: false, sobel: true, thresh: false, invert: false,
+          gray: true, bgsub: false, tophat: false, hlsuppress: false, gamma: false, median: false, bilateral: false, gauss: true, clahe: false, heq: false, unsharp: false, contrast: false, sobel: true, thresh: false, invert: false,
           vals: { 'sl-gauss': 2, 'sl-sobel': 25 }
         },
         binary: {
-          gray: true, bgsub: true, median: true, bilateral: false, gauss: true, clahe: true, heq: false, unsharp: false, contrast: false, sobel: false, thresh: true, invert: false,
+          gray: true, bgsub: true, tophat: false, hlsuppress: false, gamma: false, median: true, bilateral: false, gauss: true, clahe: true, heq: false, unsharp: false, contrast: false, sobel: false, thresh: true, invert: false,
           vals: { 'sl-bgsub': 4, 'sl-median': 3, 'sl-gauss': 2, 'sl-clahe': 2, 'sl-thresh': 80 }
         },
         clean: {
-          gray: true, bgsub: false, median: true, bilateral: true, gauss: false, clahe: true, heq: false, unsharp: false, contrast: true, sobel: false, thresh: false, invert: false,
+          gray: true, bgsub: false, tophat: false, hlsuppress: false, gamma: false, median: true, bilateral: true, gauss: false, clahe: true, heq: false, unsharp: false, contrast: true, sobel: false, thresh: false, invert: false,
           vals: { 'sl-median': 5, 'sl-bil-s': 5, 'sl-bil-r': 40, 'sl-clahe': 2, 'sl-con': 1.4, 'sl-bri': 0 }
         },
       };
