@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smoke Flow Analyzer</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #102B53;
+      --surface: rgba(80, 105, 189, 0.2);
+      --panel: rgba(16, 43, 83, 0.5);
+      --border: #4E7AB1;
+      --border-hi: #5069BD;
+      --accent: #CEB5D4;
+      --accent2: #4E7AB1;
+      --accent3: #7D9FC0;
+      --warn: #CEB5D4;
+      --text: #ffffff;
+      --text-muted: #CEB5D4;
+      --text-dim: #7D9FC0;
+      --mono: 'Space Mono', monospace;
+      --sans: 'Inter', sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 39px, var(--border) 39px, var(--border) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, var(--border) 39px, var(--border) 40px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 28px 0 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-mark {
+      width: 42px;
+      height: 42px;
+      border: 1.5px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .logo-mark::before {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border: 1px solid var(--accent);
+      opacity: 0.4;
+    }
+
+    .logo-mark svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .logo-text {
+      line-height: 1;
+    }
+
+    .logo-text h1 {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      text-transform: uppercase;
+    }
+
+    .logo-text span {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+    }
+
+    .header-meta {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: right;
+      line-height: 1.8;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent3);
+      margin-right: 5px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.3
+      }
+    }
+
+    /* MAIN LAYOUT */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .panel-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+    }
+
+    .panel-body {
+      padding: 14px;
+    }
+
+    /* UPLOAD ZONES */
+    .upload-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .upload-zone {
+      border: 1px dashed var(--border-hi);
+      padding: 14px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      background: var(--surface);
+    }
+
+    .upload-zone:hover {
+      border-color: var(--accent);
+      background: rgba(0, 212, 255, 0.04);
+    }
+
+    .upload-zone.loaded {
+      border-color: var(--accent3);
+      border-style: solid;
+    }
+
+    .upload-zone input {
+      display: none;
+    }
+
+    .uz-icon {
+      width: 24px;
+      height: 24px;
+      margin: 0 auto 6px;
+      border: 1px solid var(--border-hi);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .uz-icon svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--text-muted);
+    }
+
+    .upload-zone.loaded .uz-icon {
+      border-color: var(--accent3);
+    }
+
+    .upload-zone.loaded .uz-icon svg {
+      stroke: var(--accent3);
+    }
+
+    .uz-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .uz-sub {
+      font-size: 9px;
+      color: var(--text-dim);
+    }
+
+    .upload-zone.loaded .uz-label {
+      color: var(--accent3);
+    }
+
+    /* PRESETS */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .preset-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-align: left;
+      transition: all 0.15s;
+      position: relative;
+    }
+
+    .preset-btn::before {
+      content: '▸';
+      color: var(--accent);
+      margin-right: 5px;
+      font-size: 9px;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(0, 212, 255, 0.06);
+    }
+
+    .preset-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0, 212, 255, 0.08);
+    }
+
+    /* FILTER ITEMS */
+    .filter-item {
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      background: var(--surface);
+      transition: border-color 0.15s;
+    }
+
+    .filter-item.on {
+      border-color: var(--accent);
+    }
+
+    .filter-item.on .fi-header {
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .fi-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .fi-check {
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--border-hi);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.15s;
+    }
+
+    .filter-item.on .fi-check {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .fi-check svg {
+      width: 8px;
+      height: 8px;
+      stroke: var(--bg);
+      display: none;
+    }
+
+    .filter-item.on .fi-check svg {
+      display: block;
+    }
+
+    .fi-name {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      flex: 1;
+    }
+
+    .filter-item.on .fi-name {
+      color: var(--text);
+    }
+
+    .fi-badge {
+      font-family: var(--mono);
+      font-size: 8px;
+      padding: 2px 6px;
+      letter-spacing: 0.1em;
+      border: 1px solid;
+    }
+
+    .badge-flow {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .badge-noise {
+      color: var(--accent3);
+      border-color: var(--accent3);
+    }
+
+    .badge-edge {
+      color: var(--warn);
+      border-color: var(--warn);
+    }
+
+    .badge-vis {
+      color: var(--accent2);
+      border-color: var(--accent2);
+    }
+
+    .fi-body {
+      padding: 0 12px 10px;
+      display: none;
+    }
+
+    .filter-item.on .fi-body {
+      display: block;
+    }
+
+    .fi-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 8px;
+      font-family: var(--sans);
+    }
+
+    .srow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .srow label {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      min-width: 72px;
+      flex-shrink: 0;
+    }
+
+    .srow input[type=range] {
+      flex: 1;
+      appearance: none;
+      height: 2px;
+      background: var(--border-hi);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .srow input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      cursor: pointer;
+      border: none;
+    }
+
+    .srow select {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border-hi);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 4px 6px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .srow span {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      min-width: 32px;
+      text-align: right;
+    }
+
+    /* CANVAS AREA */
+    .canvas-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .canvas-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .canvas-wrap {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .canvas-wrap::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+    }
+
+    .cw-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cw-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .cw-info {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--text-dim);
+    }
+
+    .cw-body {
+      background: #020408;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 260px;
+      position: relative;
+    }
+
+    .canvas-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cp-icon {
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--border-hi);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cp-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-dim);
+    }
+
+    .cp-text {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+
+    canvas {
+      display: block;
+      max-width: 100%;
+    }
+
+    /* ACTION ROW */
+    .action-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-run {
+      background: var(--accent);
+      border: none;
+      color: var(--bg);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: 11px 24px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: opacity 0.15s, transform 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-run::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 40%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      skewX(-20deg);
+      transition: left 0.4s;
+    }
+
+    .btn-run:hover::after {
+      left: 150%;
+    }
+
+    .btn-run:hover {
+      opacity: 0.9;
+    }
+
+    .btn-run:active {
+      transform: scale(0.98);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border-hi);
+      color: var(--text-muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      padding: 11px 18px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.15s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--text-muted);
+      color: var(--text);
+    }
+
+    /* LOG / STATUS BAR */
+    .log-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .log-prefix {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+
+    .log-text {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    /* PIPELINE DISPLAY */
+    .pipeline-display {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+    }
+
+    .pd-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .pd-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .pd-step {
+      font-family: var(--mono);
+      font-size: 9px;
+      padding: 3px 8px;
+      border: 1px solid var(--border-hi);
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+
+    .pd-step.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0, 212, 255, 0.06);
+    }
+
+    .pd-arrow {
+      color: var(--text-dim);
+      font-size: 10px;
+    }
+
+    /* SCROLL */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--surface);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-hi);
+    }
+
+    .filter-scroll {
+      max-height: calc(100vh - 360px);
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+
+    /* Glassmorphism Overrides */
+    .panel, .canvas-wrap {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    .log-bar, .pipeline-display, .upload-zone, .cw-body {
+      border-radius: 8px;
+    }
+    .btn-run, .btn-ghost, .fi-header {
+      border-radius: 6px;
+    }
+    .panel-header, .cw-header {
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+    canvas {
+      border-radius: 8px;
+    }
+        @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-scroll {
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <header>
+      <div class="logo-group">
+        <div class="logo-mark">
+          <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="9" cy="9" r="6" stroke="#00d4ff" stroke-width="1.2" />
+            <path d="M9 3 C6 6 6 12 9 15" stroke="#00d4ff" stroke-width="1" fill="none" />
+            <path d="M9 3 C12 6 12 12 9 15" stroke="#00d4ff" stroke-width="1" fill="none" opacity="0.5" />
+            <line x1="3" y1="9" x2="15" y2="9" stroke="#00d4ff" stroke-width="0.8" opacity="0.4" />
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>Smoke Flow</h1>
+          <span>DIGITAL IMAGE PROCESSOR v2.0</span>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div><span class="status-dot"></span>SYSTEM READY</div>
+        <div>DUMAN TÜNELİ — AKİŞ ANALİZİ</div>
+      </div>
+    </header>
+
+    <div class="main-grid">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+
+        <!-- Upload -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">görüntü girişi</span>
+            <span class="panel-tag">INPUT</span>
+          </div>
+          <div class="panel-body">
+            <div class="upload-pair">
+              <div class="upload-zone" id="uz-main" onclick="document.getElementById('fi-main').click()">
+                <input type="file" id="fi-main" accept="image/*">
+                <div class="uz-icon">
+                  <svg viewBox="0 0 12 12" fill="none">
+                    <path d="M6 1v7M3 5l3-4 3 4M2 10h8" stroke-width="1.2" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <span class="uz-label" id="uz-main-lbl">ANA GÖRÜNTÜ</span>
+                <div class="uz-sub">dumanlı fotoğraf</div>
+              </div>
+              <div class="upload-zone" id="uz-bg" onclick="document.getElementById('fi-bg').click()">
+                <input type="file" id="fi-bg" accept="image/*">
+                <div class="uz-icon">
+                  <svg viewBox="0 0 12 12" fill="none">
+                    <rect x="1" y="1" width="10" height="10" rx="0" stroke-width="1.2" />
+                    <path d="M4 6h4M6 4v4" stroke-width="1.2" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <span class="uz-label" id="uz-bg-lbl">ARKA PLAN</span>
+                <div class="uz-sub">referans (opsiyonel)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Presets -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">ön ayarlar</span>
+            <span class="panel-tag">PRESETS</span>
+          </div>
+          <div class="panel-body">
+            <div class="preset-grid">
+              <button class="preset-btn" id="pr-flow" onclick="setPreset('flow')">Akış çizgileri</button>
+              <button class="preset-btn" id="pr-smoke" onclick="setPreset('smoke')">Duman netliği</button>
+              <button class="preset-btn" id="pr-edge" onclick="setPreset('edge')">Kenar analizi</button>
+              <button class="preset-btn" id="pr-binary" onclick="setPreset('binary')">İkili görüntü</button>
+              <button class="preset-btn" id="pr-clean" onclick="setPreset('clean')">Temiz filtre</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">filtre zinciri</span>
+            <span class="panel-tag">PIPELINE</span>
+          </div>
+          <div class="panel-body" style="padding:10px">
+            <div class="filter-scroll">
+
+              <div class="filter-item" id="fi-tophat">
+                <div class="fi-header" onclick="toggleFilter('tophat')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">MORFOLOJİK TOP-HAT</span>
+                  <span class="fi-badge badge-noise">DUMAN ÇİZGİSİ</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Geniş yansımaları/parlamaları yoksayarak yalnızca ince akış çizgilerini (aydınlık bölgeleri) ortaya çıkarır.</div>
+                  <div class="srow"><label>Yarıçap</label><input type="range" id="sl-tophat" min="1" max="15" step="1"
+                      value="6"><span id="vl-tophat">6</span></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-hlsuppress">
+                <div class="fi-header" onclick="toggleFilter('hlsuppress')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">YANSIMA BASKILAMA</span>
+                  <span class="fi-badge badge-warn">MASKELEME</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Aşırı parlak noktaları tespit eder (ışık yansıması) ve bu noktaları belirli bir eşiğe göre karartır.</div>
+                  <div class="srow"><label>Eşik (Threshold)</label><input type="range" id="sl-hl-t" min="100" max="255" step="5"
+                      value="200"><span id="vl-hl-t">200</span></div>
+                  <div class="srow"><label>Baskılama Gücü</label><input type="range" id="sl-hl-a" min="0.1" max="1.0" step="0.1"
+                      value="0.8"><span id="vl-hl-a">0.8</span></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-gamma">
+                <div class="fi-header" onclick="toggleFilter('gamma')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">GAMA DÜZELTMESİ</span>
+                  <span class="fi-badge badge-flow">KONTRAST</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Karanlık detayları (dumanı) görünür kılarken yüksek parlamaları minimal seviyede artırır. Orta tonları güçlendirir.</div>
+                  <div class="srow"><label>Gama Değeri</label><input type="range" id="sl-gamma" min="0.2" max="3.0" step="0.1"
+                      value="1.4"><span id="vl-gamma">1.4</span></div>
+                </div>
+              </div>
+
+
+              <div class="filter-item" id="fi-gray">
+                <div class="fi-header" onclick="toggleFilter('gray')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">GRİ TON DÖNÜŞÜMİ</span>
+                  <span class="fi-badge badge-flow">TEMEL</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Ağırlıklı ortalama (0.299R + 0.587G + 0.114B) ile gri tona çevirir.</div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-bgsub">
+                <div class="fi-header" onclick="toggleFilter('bgsub')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">ARKA PLAN ÇIKARMA</span>
+                  <span class="fi-badge badge-flow">AKIŞ</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Referans görüntüden çıkararak sadece akış izlerini gösterir. Arka plan yoksa
+                    tahmini hesaplar.</div>
+                  <div class="srow"><label>Kuvvetlendirme</label><input type="range" id="sl-bgsub" min="1" max="8"
+                      step="0.5" value="3"><span id="vl-bgsub">3.0</span></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-median">
+                <div class="fi-header" onclick="toggleFilter('median')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">MEDİAN FİLTRE</span>
+                  <span class="fi-badge badge-noise">GÜRÜLTÜ</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Tuz-biber gürültüsünü temizler. Kenarları korur.</div>
+                  <div class="srow"><label>Pencere</label>
+                    <select id="sl-median">
+                      <option value="3" selected>3×3</option>
+                      <option value="5">5×5</option>
+                      <option value="7">7×7</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-bilateral">
+                <div class="fi-header" onclick="toggleFilter('bilateral')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">BİLATERAL FİLTRE</span>
+                  <span class="fi-badge badge-noise">GÜRÜLTÜ</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Kenarları keskin tutarken arka planı yumuşatır. Median'dan daha akıllı.</div>
+                  <div class="srow"><label>Uzamsal σ</label><input type="range" id="sl-bil-s" min="1" max="10" step="1"
+                      value="4"><span id="vl-bil-s">4</span></div>
+                  <div class="srow"><label>Renk σ</label><input type="range" id="sl-bil-r" min="10" max="80" step="5"
+                      value="30"><span id="vl-bil-r">30</span></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-gauss">
+                <div class="fi-header" onclick="toggleFilter('gauss')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">GAUSSIAN BLUR</span>
+                  <span class="fi-badge badge-noise">GÜRÜLTÜ</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Genel gürültü azaltma. Sobel/Canny öncesi önerilir.</div>
+                  <div class="srow"><label>Yarıçap</label><input type="range" id="sl-gauss" min="1" max="8" step="1"
+                      value="2"><span id="vl-gauss">2</span></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-clahe">
+                <div class="fi-header" onclick="toggleFilter('clahe')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">CLAHE</span>
+                  <span class="fi-badge badge-flow">KONTRAST</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Bölgesel adaptif histogram eşitleme. Aşırı parlamaları önler, duman detaylarını
+                    ortaya çıkarır.</div>
+                  <div class="srow"><label>Clip limiti</label><input type="range" id="sl-clahe" min="1" max="6"
+                      step="0.5" value="2.5"><span id="vl-clahe">2.5</span></div>
+                  <div class="srow"><label>Izgara</label>
+                    <select id="sl-clahe-grid">
+                      <option value="4">4×4</option>
+                      <option value="8" selected>8×8</option>
+                      <option value="16">16×16</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-heq">
+                <div class="fi-header" onclick="toggleFilter('heq')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">HİSTOGRAM EŞİTLEME</span>
+                  <span class="fi-badge badge-flow">KONTRAST</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Global histogram eşitleme. Tüm görüntüye uygular, CLAHE'den daha agresif.</div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-unsharp">
+                <div class="fi-header" onclick="toggleFilter('unsharp')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">UNSHARP MASK</span>
+                  <span class="fi-badge badge-flow">AKIŞ</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Bulanık versiyonu orijinalden çıkararak keskinlik artırır. Akış çizgilerini
+                    belirginleştirir.</div>
+                  <div class="srow"><label>Kuvvet</label><input type="range" id="sl-unsharp" min="0.3" max="4"
+                      step="0.1" value="1.5"><span id="vl-unsharp">1.5</span></div>
+                  <div class="srow"><label>Yarıçap</label><input type="range" id="sl-unsharp-r" min="1" max="5" step="1"
+                      value="2"><span id="vl-unsharp-r">2</span></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-contrast">
+                <div class="fi-header" onclick="toggleFilter('contrast')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">KONTRAST / PARLAKLIK</span>
+                  <span class="fi-badge badge-flow">KONTRAST</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Manuel kontrast ve parlaklık ayarı.</div>
+                  <div class="srow"><label>Kontrast</label><input type="range" id="sl-con" min="0.3" max="4" step="0.05"
+                      value="1.5"><span id="vl-con">1.50</span></div>
+                  <div class="srow"><label>Parlaklık</label><input type="range" id="sl-bri" min="-120" max="120"
+                      step="1" value="0"><span id="vl-bri">0</span></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-sobel">
+                <div class="fi-header" onclick="toggleFilter('sobel')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">SOBEL KENAR TESPİTİ</span>
+                  <span class="fi-badge badge-edge">KENAR</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">X/Y gradyanı hesaplar. Akış çizgilerinin sınırlarını belirler.</div>
+                  <div class="srow"><label>Eşik</label><input type="range" id="sl-sobel" min="0" max="200" step="5"
+                      value="30"><span id="vl-sobel">30</span></div>
+                  <div class="srow"><label>Mod</label>
+                    <select id="sel-sobel">
+                      <option value="mag" selected>Gradyan büyüklüğü</option>
+                      <option value="dir">Yön haritası</option>
+                      <option value="bin">İkili kenar</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-thresh">
+                <div class="fi-header" onclick="toggleFilter('thresh')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">EŞİKLEME</span>
+                  <span class="fi-badge badge-edge">İKİLİ</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Parlaklık seviyesine göre ikili görüntü. Otsu modu otomatik eşik hesaplar.</div>
+                  <div class="srow"><label>Eşik</label><input type="range" id="sl-thresh" min="20" max="240" step="5"
+                      value="110"><span id="vl-thresh">110</span></div>
+                  <div class="srow"><label>Mod</label>
+                    <select id="sel-thresh">
+                      <option value="bin" selected>Normal</option>
+                      <option value="inv">Ters</option>
+                      <option value="adapt">Otsu (otomatik)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="fi-invert">
+                <div class="fi-header" onclick="toggleFilter('invert')">
+                  <div class="fi-check"><svg viewBox="0 0 8 8" fill="none">
+                      <polyline points="1,4 3,6 7,2" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg></div>
+                  <span class="fi-name">RENK TERS ÇEVİRME</span>
+                  <span class="fi-badge badge-vis">GÖRSEL</span>
+                </div>
+                <div class="fi-body">
+                  <div class="fi-desc">Karanlık arka plan üzerindeki akış çizgilerini siyah üzerine beyaza çevirir.
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CANVAS + CONTROLS -->
+      <div class="canvas-area">
+
+        <div class="canvas-pair">
+          <div class="canvas-wrap">
+            <div class="cw-header">
+              <span class="cw-title">ORİJİNAL</span>
+              <span class="cw-info" id="orig-info">— boş —</span>
+            </div>
+            <div class="cw-body" id="orig-body">
+              <div class="canvas-placeholder" id="orig-placeholder">
+                <div class="cp-icon"><svg viewBox="0 0 20 20" fill="none">
+                    <rect x="2" y="2" width="16" height="16" stroke-width="1.2" />
+                    <circle cx="7" cy="7" r="2" stroke-width="1.2" />
+                    <path d="M2 14l5-5 3 3 3-3 5 5" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg></div>
+                <div class="cp-text">görüntü bekleniyor</div>
+              </div>
+              <canvas id="c-orig" width="480" height="360" style="display:none"></canvas>
+            </div>
+          </div>
+          <div class="canvas-wrap">
+            <div class="cw-header">
+              <span class="cw-title">FİLTRELENMİŞ ÇIKTI</span>
+              <span class="cw-info" id="out-info">— bekliyor —</span>
+            </div>
+            <div class="cw-body" id="out-body">
+              <div class="canvas-placeholder" id="out-placeholder">
+                <div class="cp-icon"><svg viewBox="0 0 20 20" fill="none">
+                    <path d="M4 10h12M10 4v12" stroke-width="1.2" stroke-linecap="round" />
+                    <circle cx="10" cy="10" r="8" stroke-width="1.2" />
+                  </svg></div>
+                <div class="cp-text">filtre uygulanmadı</div>
+              </div>
+              <canvas id="c-out" width="480" height="360" style="display:none"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pipeline display -->
+        <div class="pipeline-display">
+          <div class="pd-label">AKTİF FİLTRE ZİNCİRİ</div>
+          <div class="pd-steps" id="pipeline-steps">
+            <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">Filtre seçilmedi</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="action-row">
+          <button class="btn-run" onclick="run()">▶ Filtreleri Uygula</button>
+          <button class="btn-ghost" onclick="dl()">↓ PNG İndir</button>
+          <button class="btn-ghost" onclick="resetUI()">↺ Sıfırla</button>
+        </div>
+
+        <!-- Log -->
+        <div class="log-bar">
+          <span class="log-prefix">&gt;&gt;</span>
+          <span class="log-text" id="log-text">Sistem hazır. Görüntü yükleyin ve filtre zincirini oluşturun. Öneri:
+            "Akış Çizgileri" ön ayarını deneyin.</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const W = 480, H = 360;
+    let mainData = null, bgData = null;
+
+    const ctxO = document.getElementById('c-orig').getContext('2d');
+    const ctxOut = document.getElementById('c-out').getContext('2d');
+
+    function log(msg) { document.getElementById('log-text').textContent = msg; }
+
+    function showCanvas(id, show) {
+      document.getElementById(id).style.display = show ? 'block' : 'none';
+      const ph = id === 'c-orig' ? 'orig-placeholder' : 'out-placeholder';
+      document.getElementById(ph).style.display = show ? 'none' : 'flex';
+    }
+
+    function loadImg(file, isBg) {
+      const r = new FileReader();
+      r.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          const sc = Math.min(W / img.width, H / img.height);
+          const dw = Math.round(img.width * sc), dh = Math.round(img.height * sc);
+          const dx = Math.round((W - dw) / 2), dy = Math.round((H - dh) / 2);
+          if (isBg) {
+            const tmp = document.createElement('canvas'); tmp.width = W; tmp.height = H;
+            const tc = tmp.getContext('2d'); tc.clearRect(0, 0, W, H); tc.drawImage(img, dx, dy, dw, dh);
+            bgData = tc.getImageData(0, 0, W, H);
+            const el = document.getElementById('uz-bg'); el.classList.add('loaded');
+            document.getElementById('uz-bg-lbl').textContent = 'ARKA PLAN ✓';
+            log('Arka plan görüntüsü yüklendi. Arka plan çıkarma filtresi aktifleştirildi.');
+          } else {
+            ctxO.clearRect(0, 0, W, H); ctxO.drawImage(img, dx, dy, dw, dh);
+            mainData = ctxO.getImageData(0, 0, W, H);
+            showCanvas('c-orig', true);
+            const el = document.getElementById('uz-main'); el.classList.add('loaded');
+            document.getElementById('uz-main-lbl').textContent = 'ANA GÖRÜNTÜ ✓';
+            document.getElementById('orig-info').textContent = img.width + '×' + img.height;
+            log('Ana görüntü yüklendi (' + img.width + '×' + img.height + '). Filtre zincirini oluşturun ve uygulayın.');
+          }
+        }; img.src = ev.target.result;
+      }; r.readAsDataURL(file);
+    }
+
+    document.getElementById('fi-main').onchange = e => e.target.files[0] && loadImg(e.target.files[0], false);
+    document.getElementById('fi-bg').onchange = e => e.target.files[0] && loadImg(e.target.files[0], true);
+
+    const filterIds = ['gray', 'bgsub', 'tophat', 'hlsuppress', 'gamma', 'median', 'bilateral', 'gauss', 'clahe', 'heq', 'unsharp', 'contrast', 'sobel', 'thresh', 'invert'];
+    const filterState = {};
+    filterIds.forEach(id => { filterState[id] = id === 'gray'; });
+
+    function toggleFilter(id) {
+      filterState[id] = !filterState[id];
+      const el = document.getElementById('fi-' + id);
+      el.classList.toggle('on', filterState[id]);
+      updatePipeline();
+    }
+
+    function updatePipeline() {
+      const steps = document.getElementById('pipeline-steps');
+      const names = { gray: 'GRİ TON', bgsub: 'BG ÇIKARMA', tophat: 'TOP-HAT', hlsuppress: 'YANSIMA ÖNLE', gamma: 'GAMA', median: 'MEDİAN', bilateral: 'BİLATERAL', gauss: 'GAUSS', clahe: 'CLAHE', heq: 'HİST.EQ.', unsharp: 'UNSHARP', contrast: 'KONTRAST', sobel: 'SOBEL', thresh: 'EŞİKLEME', invert: 'TERS' };
+      const active = filterIds.filter(id => filterState[id]);
+      if (!active.length) { steps.innerHTML = '<span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">Filtre seçilmedi</span>'; return; }
+      steps.innerHTML = active.map((id, i) => `<span class="pd-step active">${names[id]}</span>${i < active.length - 1 ? '<span class="pd-arrow">›</span>' : ''}`).join('');
+    }
+
+    function setOn(id, val) {
+      filterState[id] = val;
+      document.getElementById('fi-' + id).classList.toggle('on', val);
+    }
+
+    const sliderDefs = [
+      ['sl-bgsub', 'vl-bgsub', v => parseFloat(v).toFixed(1)],
+      ['sl-tophat', 'vl-tophat', v => v],
+      ['sl-hl-t', 'vl-hl-t', v => v],
+      ['sl-hl-a', 'vl-hl-a', v => parseFloat(v).toFixed(1)],
+      ['sl-gamma', 'vl-gamma', v => parseFloat(v).toFixed(1)],
+      ['sl-bil-s', 'vl-bil-s', v => v],
+      ['sl-bil-r', 'vl-bil-r', v => v],
+      ['sl-gauss', 'vl-gauss', v => v],
+      ['sl-clahe', 'vl-clahe', v => parseFloat(v).toFixed(1)],
+      ['sl-unsharp', 'vl-unsharp', v => parseFloat(v).toFixed(1)],
+      ['sl-unsharp-r', 'vl-unsharp-r', v => v],
+      ['sl-con', 'vl-con', v => parseFloat(v).toFixed(2)],
+      ['sl-bri', 'vl-bri', v => v],
+      ['sl-sobel', 'vl-sobel', v => v],
+      ['sl-thresh', 'vl-thresh', v => v],
+    ];
+    sliderDefs.forEach(([s, v, f]) => {
+      const el = document.getElementById(s), ov = document.getElementById(v);
+      if (el && ov) el.addEventListener('input', () => { ov.textContent = f(el.value); });
+    });
+
+    document.getElementById('fi-gray').classList.add('on');
+    updatePipeline();
+
+    function clamp(v) { return Math.max(0, Math.min(255, Math.round(v))); }
+
+    function gaussKernel(r) {
+      const sz = r * 2 + 1, sig = r / 2.5, k = []; let s = 0;
+      for (let i = 0; i < sz; i++) { const x = i - r, v = Math.exp(-(x * x) / (2 * sig * sig)); k.push(v); s += v; }
+      return k.map(v => v / s);
+    }
+    function blurPass(d, w, h, r, ch) {
+      const k = gaussKernel(r), tmp = new Float32Array(w * h);
+      for (let y = 0; y < h; y++)for (let x = 0; x < w; x++) { let s = 0; for (let i = -r; i <= r; i++) { const xx = Math.max(0, Math.min(w - 1, x + i)); s += d[(y * w + xx) * 4 + ch] * k[i + r]; } tmp[y * w + x] = s; }
+      for (let y = 0; y < h; y++)for (let x = 0; x < w; x++) { let s = 0; for (let i = -r; i <= r; i++) { const yy = Math.max(0, Math.min(h - 1, y + i)); s += tmp[yy * w + x] * k[i + r]; } d[(y * w + x) * 4 + ch] = clamp(s); }
+    }
+    function blurAll(d, w, h, r) { blurPass(d, w, h, r, 0); blurPass(d, w, h, r, 1); blurPass(d, w, h, r, 2); }
+
+    function medianFilter(d, w, h, sz) {
+      const half = Math.floor(sz / 2), out = new Uint8ClampedArray(d);
+      for (let y = 0; y < h; y++)for (let x = 0; x < w; x++) {
+        const vals = [];
+        for (let ky = -half; ky <= half; ky++)for (let kx = -half; kx <= half; kx++) {
+          const yy = Math.max(0, Math.min(h - 1, y + ky)), xx = Math.max(0, Math.min(w - 1, x + kx));
+          vals.push(d[(yy * w + xx) * 4]);
+        }
+        vals.sort((a, b) => a - b);
+        const mid = vals[Math.floor(vals.length / 2)];
+        const i = (y * w + x) * 4; out[i] = out[i + 1] = out[i + 2] = mid;
+      }
+      for (let i = 0; i < d.length; i++)d[i] = out[i];
+    }
+
+    function bilateralFilter(d, w, h, sigS, sigR) {
+      const r = Math.ceil(sigS * 2), out = new Uint8ClampedArray(d);
+      for (let y = 0; y < h; y++)for (let x = 0; x < w; x++) {
+        let wSum = 0, vSum = 0; const cI = d[(y * w + x) * 4];
+        for (let ky = -r; ky <= r; ky++)for (let kx = -r; kx <= r; kx++) {
+          const yy = Math.max(0, Math.min(h - 1, y + ky)), xx = Math.max(0, Math.min(w - 1, x + kx));
+          const nI = d[(yy * w + xx) * 4];
+          const w2 = Math.exp(-(kx * kx + ky * ky) / (2 * sigS * sigS)) * Math.exp(-Math.pow(nI - cI, 2) / (2 * sigR * sigR));
+          wSum += w2; vSum += nI * w2;
+        }
+        const v = clamp(vSum / wSum); const i = (y * w + x) * 4; out[i] = out[i + 1] = out[i + 2] = v;
+      }
+      for (let i = 0; i < d.length; i++)d[i] = out[i];
+    }
+
+    function doClahe(d, w, h, clip, grid) {
+      const tw = Math.floor(w / grid), th = Math.floor(h / grid);
+      for (let ty = 0; ty < grid; ty++)for (let tx = 0; tx < grid; tx++) {
+        const x0 = tx * tw, y0 = ty * th, x1 = Math.min(x0 + tw, w), y1 = Math.min(y0 + th, h);
+        const hist = new Int32Array(256);
+        for (let y = y0; y < y1; y++)for (let x = x0; x < x1; x++)hist[d[(y * w + x) * 4]]++;
+        const lim = Math.round((tw * th) / (256 / clip));
+        let ex = 0; for (let v = 0; v < 256; v++)if (hist[v] > lim) { ex += hist[v] - lim; hist[v] = lim; }
+        const rd = Math.floor(ex / 256); for (let v = 0; v < 256; v++)hist[v] += rd;
+        const cdf = new Int32Array(256); cdf[0] = hist[0]; for (let v = 1; v < 256; v++)cdf[v] = cdf[v - 1] + hist[v];
+        const tot = (x1 - x0) * (y1 - y0), cMin = cdf[0];
+        const lut = new Uint8Array(256); for (let v = 0; v < 256; v++)lut[v] = clamp((cdf[v] - cMin) / (tot - cMin) * 255);
+        for (let y = y0; y < y1; y++)for (let x = x0; x < x1; x++) { const i = (y * w + x) * 4; d[i] = d[i + 1] = d[i + 2] = lut[d[i]]; }
+      }
+    }
+
+    function histEq(d, w, h) {
+      const hist = new Int32Array(256);
+      for (let i = 0; i < w * h; i++)hist[d[i * 4]]++;
+      const cdf = new Int32Array(256); cdf[0] = hist[0]; for (let v = 1; v < 256; v++)cdf[v] = cdf[v - 1] + hist[v];
+      const mn = cdf.find(v => v > 0), tot = w * h;
+      const lut = new Uint8Array(256); for (let v = 0; v < 256; v++)lut[v] = clamp((cdf[v] - mn) / (tot - mn) * 255);
+      for (let i = 0; i < w * h; i++) { const p = i * 4; d[p] = d[p + 1] = d[p + 2] = lut[d[p]]; }
+    }
+
+    function otsuThresh(d, w, h) {
+      const hist = new Array(256).fill(0);
+      for (let i = 0; i < w * h; i++)hist[d[i * 4]]++;
+      const tot = w * h; let sum = 0; for (let v = 0; v < 256; v++)sum += v * hist[v];
+      let sumB = 0, wB = 0, best = 0, t = 0;
+      for (let v = 0; v < 256; v++) {
+        wB += hist[v]; if (!wB) continue; const wF = tot - wB; if (!wF) break;
+        sumB += v * hist[v]; const mB = sumB / wB, mF = (sum - sumB) / wF;
+        const between = wB * wF * (mB - mF) * (mB - mF); if (between > best) { best = between; t = v; }
+      }
+      return t;
+    }
+
+    
+    function morphologyPass(src, dst, w, h, r, isErosion) {
+      const tmp = new Uint8ClampedArray(src.length);
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          let val = src[(y * w + x) * 4];
+          for (let k = -r; k <= r; k++) {
+            const xx = Math.max(0, Math.min(w - 1, x + k));
+            const p = src[(y * w + xx) * 4];
+            val = isErosion ? Math.min(val, p) : Math.max(val, p);
+          }
+          const i = (y * w + x) * 4;
+          tmp[i] = tmp[i + 1] = tmp[i + 2] = val;
+          tmp[i + 3] = 255;
+        }
+      }
+      for (let x = 0; x < w; x++) {
+        for (let y = 0; y < h; y++) {
+          let val = tmp[(y * w + x) * 4];
+          for (let k = -r; k <= r; k++) {
+            const yy = Math.max(0, Math.min(h - 1, y + k));
+            const p = tmp[(yy * w + x) * 4];
+            val = isErosion ? Math.min(val, p) : Math.max(val, p);
+          }
+          const i = (y * w + x) * 4;
+          dst[i] = dst[i + 1] = dst[i + 2] = val;
+          dst[i + 3] = 255;
+        }
+      }
+    }
+
+    function doTopHat(d, w, h, r) {
+      const orig = new Uint8ClampedArray(d);
+      const opened = new Uint8ClampedArray(d);
+      morphologyPass(orig, opened, w, h, r, true);
+      const eroded = new Uint8ClampedArray(opened);
+      morphologyPass(eroded, opened, w, h, r, false);
+      for (let i = 0; i < d.length; i += 4) {
+        d[i] = d[i + 1] = d[i + 2] = clamp(orig[i] - opened[i]);
+      }
+    }
+
+    function doGamma(d, w, h, gamma) {
+      const lut = new Uint8Array(256);
+      for (let i = 0; i < 256; i++) lut[i] = clamp(Math.pow(i / 255, 1 / gamma) * 255);
+      for (let i = 0; i < d.length; i += 4) {
+        d[i] = lut[d[i]]; d[i + 1] = lut[d[i + 1]]; d[i + 2] = lut[d[i + 2]];
+      }
+    }
+
+    function suppressHL(d, w, h, thr, amt) {
+      for (let i = 0; i < d.length; i += 4) {
+        let v = d[i];
+        if (v > thr) {
+          v = thr + (v - thr) * (1 - amt);
+        }
+        d[i] = d[i + 1] = d[i + 2] = clamp(v);
+      }
+    }
+
+    function run() {
+      if (!mainData) { log('HATA: Önce ana görüntü yükleyin.'); return; }
+      const d = new Uint8ClampedArray(mainData.data);
+      const applied = [];
+
+      if (filterState.gray) {
+        applied.push('Gri ton');
+        for (let i = 0; i < d.length; i += 4) { const g = clamp(0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]); d[i] = d[i + 1] = d[i + 2] = g; }
+      }
+      if (filterState.bgsub) {
+        const amp = parseFloat(document.getElementById('sl-bgsub').value);
+        applied.push('BG çıkarma ×' + amp.toFixed(1));
+        if (bgData) {
+          for (let i = 0; i < d.length; i += 4) { const diff = Math.abs(d[i] - bgData.data[i]); const v = clamp(diff * amp); d[i] = d[i + 1] = d[i + 2] = v; }
+        } else {
+          const tmp = new Uint8ClampedArray(d); blurAll(tmp, W, H, 15);
+          for (let i = 0; i < d.length; i += 4) { const diff = Math.abs(d[i] - tmp[i]); const v = clamp(diff * amp); d[i] = d[i + 1] = d[i + 2] = v; }
+        }
+      }
+      if (filterState.tophat) {
+        const r = parseInt(document.getElementById('sl-tophat').value);
+        applied.push('Top-Hat r=' + r);
+        doTopHat(d, W, H, r);
+      }
+      if (filterState.hlsuppress) {
+        const thr = parseInt(document.getElementById('sl-hl-t').value);
+        const amt = parseFloat(document.getElementById('sl-hl-a').value);
+        applied.push('Yans.Bask. t=' + thr);
+        suppressHL(d, W, H, thr, amt);
+      }
+      if (filterState.gamma) {
+        const g = parseFloat(document.getElementById('sl-gamma').value);
+        applied.push('Gama = ' + g.toFixed(1));
+        doGamma(d, W, H, g);
+      }
+      if (filterState.median) {
+        const sz = parseInt(document.getElementById('sl-median').value);
+        applied.push('Median ' + sz + '×' + sz); medianFilter(d, W, H, sz);
+      }
+      if (filterState.bilateral) {
+        const sS = parseInt(document.getElementById('sl-bil-s').value), sR = parseInt(document.getElementById('sl-bil-r').value);
+        applied.push('Bilateral σs=' + sS); bilateralFilter(d, W, H, sS, sR);
+      }
+      if (filterState.gauss) {
+        const r = parseInt(document.getElementById('sl-gauss').value);
+        applied.push('Gauss r=' + r); blurAll(d, W, H, r);
+      }
+      if (filterState.clahe) {
+        const clip = parseFloat(document.getElementById('sl-clahe').value);
+        const grid = parseInt(document.getElementById('sl-clahe-grid').value);
+        applied.push('CLAHE ' + clip.toFixed(1) + '/' + grid + '×' + grid); doClahe(d, W, H, clip, grid);
+      }
+      if (filterState.heq) { applied.push('Hist.eq.'); histEq(d, W, H); }
+      if (filterState.unsharp) {
+        const amt = parseFloat(document.getElementById('sl-unsharp').value);
+        const r = parseInt(document.getElementById('sl-unsharp-r').value);
+        applied.push('Unsharp ×' + amt.toFixed(1));
+        const orig2 = new Uint8ClampedArray(d), blr = new Uint8ClampedArray(d); blurAll(blr, W, H, r);
+        for (let i = 0; i < d.length; i += 4) { d[i] = clamp(orig2[i] + amt * (orig2[i] - blr[i])); d[i + 1] = clamp(orig2[i + 1] + amt * (orig2[i + 1] - blr[i + 1])); d[i + 2] = clamp(orig2[i + 2] + amt * (orig2[i + 2] - blr[i + 2])); }
+      }
+      if (filterState.contrast) {
+        const c = parseFloat(document.getElementById('sl-con').value), b = parseInt(document.getElementById('sl-bri').value);
+        applied.push('Kontrast ×' + c.toFixed(2));
+        for (let i = 0; i < d.length; i += 4) { d[i] = clamp((d[i] - 128) * c + 128 + b); d[i + 1] = clamp((d[i + 1] - 128) * c + 128 + b); d[i + 2] = clamp((d[i + 2] - 128) * c + 128 + b); }
+      }
+      if (filterState.sobel) {
+        const thr = parseInt(document.getElementById('sl-sobel').value);
+        const mod = document.getElementById('sel-sobel').value;
+        applied.push('Sobel[' + mod + ']');
+        const gray = new Uint8Array(W * H); for (let i = 0; i < W * H; i++)gray[i] = d[i * 4];
+        const gx = new Float32Array(W * H), gy = new Float32Array(W * H);
+        for (let y = 1; y < H - 1; y++)for (let x = 1; x < W - 1; x++) {
+          gx[y * W + x] = -gray[(y - 1) * W + (x - 1)] - 2 * gray[y * W + (x - 1)] - gray[(y + 1) * W + (x - 1)] + gray[(y - 1) * W + (x + 1)] + 2 * gray[y * W + (x + 1)] + gray[(y + 1) * W + (x + 1)];
+          gy[y * W + x] = -gray[(y - 1) * W + (x - 1)] - 2 * gray[(y - 1) * W + x] - gray[(y - 1) * W + (x + 1)] + gray[(y + 1) * W + (x - 1)] + 2 * gray[(y + 1) * W + x] + gray[(y + 1) * W + (x + 1)];
+        }
+        for (let i = 0; i < W * H; i++) {
+          const mag = Math.sqrt(gx[i] * gx[i] + gy[i] * gy[i]);
+          let v;
+          if (mod === 'mag') v = clamp(mag);
+          else if (mod === 'bin') v = mag > thr ? 255 : 0;
+          else { const angle = (Math.atan2(gy[i], gx[i]) + Math.PI) / (2 * Math.PI) * 255; v = mag > thr ? clamp(angle) : 0; }
+          d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = v;
+        }
+      }
+      if (filterState.thresh) {
+        const mod = document.getElementById('sel-thresh').value;
+        let t = parseInt(document.getElementById('sl-thresh').value);
+        if (mod === 'adapt') t = otsuThresh(d, W, H);
+        applied.push('Eşik t=' + t + (mod === 'adapt' ? ' [Otsu]' : mod === 'inv' ? ' [ters]' : ''));
+        for (let i = 0; i < W * H; i++) { const p = i * 4; const v = mod === 'inv' ? (d[p] < t ? 255 : 0) : (d[p] > t ? 255 : 0); d[p] = d[p + 1] = d[p + 2] = v; }
+      }
+      if (filterState.invert) {
+        applied.push('Ters çevirme');
+        for (let i = 0; i < d.length; i += 4) { d[i] = 255 - d[i]; d[i + 1] = 255 - d[i + 1]; d[i + 2] = 255 - d[i + 2]; }
+      }
+
+      ctxOut.putImageData(new ImageData(d, W, H), 0, 0);
+      showCanvas('c-out', true);
+      document.getElementById('out-info').textContent = applied.length + ' filtre';
+      log('Tamamlandı: ' + applied.join(' → '));
+    }
+
+    function dl() {
+      const a = document.createElement('a'); a.download = 'smoke_flow_processed.png';
+      a.href = document.getElementById('c-out').toDataURL('image/png'); a.click();
+    }
+
+    function setPreset(name) {
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('pr-' + name)?.classList.add('active');
+      const presets = {
+        flow: {
+          gray: true, bgsub: false, tophat: true, hlsuppress: true, gamma: true, median: false, bilateral: true, gauss: false, clahe: true, heq: false, unsharp: true, contrast: true, sobel: false, thresh: false, invert: false,
+          vals: { 'sl-tophat': 8, 'sl-hl-t': 220, 'sl-hl-a': 0.8, 'sl-gamma': 1.6, 'sl-bil-s': 4, 'sl-bil-r': 30, 'sl-clahe': 2.0, 'sl-unsharp': 1.5, 'sl-unsharp-r': 2, 'sl-con': 1.1, 'sl-bri': 0 }
+        },
+        smoke: {
+          gray: true, bgsub: false, median: true, bilateral: false, gauss: true, clahe: true, heq: false, unsharp: true, contrast: true, sobel: false, thresh: false, invert: false,
+          vals: { 'sl-median': 3, 'sl-gauss': 2, 'sl-clahe': 3, 'sl-unsharp': 2, 'sl-unsharp-r': 2, 'sl-con': 2, 'sl-bri': 10 }
+        },
+        edge: {
+          gray: true, bgsub: false, median: false, bilateral: false, gauss: true, clahe: false, heq: false, unsharp: false, contrast: false, sobel: true, thresh: false, invert: false,
+          vals: { 'sl-gauss': 2, 'sl-sobel': 25 }
+        },
+        binary: {
+          gray: true, bgsub: true, median: true, bilateral: false, gauss: true, clahe: true, heq: false, unsharp: false, contrast: false, sobel: false, thresh: true, invert: false,
+          vals: { 'sl-bgsub': 4, 'sl-median': 3, 'sl-gauss': 2, 'sl-clahe': 2, 'sl-thresh': 80 }
+        },
+        clean: {
+          gray: true, bgsub: false, median: true, bilateral: true, gauss: false, clahe: true, heq: false, unsharp: false, contrast: true, sobel: false, thresh: false, invert: false,
+          vals: { 'sl-median': 5, 'sl-bil-s': 5, 'sl-bil-r': 40, 'sl-clahe': 2, 'sl-con': 1.4, 'sl-bri': 0 }
+        },
+      };
+      const p = presets[name]; if (!p) return;
+      filterIds.forEach(id => setOn(id, p[id] || false));
+      if (p.vals) Object.entries(p.vals).forEach(([k, v]) => { const el = document.getElementById(k); if (el) el.value = v; });
+      sliderDefs.forEach(([s, v, f]) => { const el = document.getElementById(s), ov = document.getElementById(v); if (el && ov) ov.textContent = f(el.value); });
+      updatePipeline();
+      const names = { flow: 'Akış Çizgileri', smoke: 'Duman Netliği', edge: 'Kenar Analizi', binary: 'İkili Görüntü', clean: 'Temiz Filtre' };
+      log('Ön ayar yüklendi: ' + names[name] + '. Görüntü yükleyip "Filtreleri Uygula"ya basın.');
+    }
+
+    function resetUI() {
+      filterIds.forEach(id => setOn(id, id === 'gray'));
+      ctxOut.clearRect(0, 0, W, H);
+      showCanvas('c-out', false);
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      updatePipeline();
+      log('Sıfırlandı. Tüm filtreler temizlendi.');
+    }
+  </script>
+</body>
+
+</html>
